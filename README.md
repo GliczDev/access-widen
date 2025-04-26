@@ -53,7 +53,7 @@ dependencies {
     accessWiden("io.papermc.paper:paper-server:userdev-$paperVersion")
 }
 
-accessWiden {
+accessWideners {
     // load *.accesswidener files from resources
     files.from(fileTree(sourceSets.main.get().resources.srcDirs.first()) {
         include("*.accesswidener")
