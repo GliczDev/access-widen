@@ -27,8 +27,8 @@ accessWiden {
     
     // optional, default: compileOnly
     outputConfigurations = setOf(
-        ,
-        "testImplementation"
+        configurations.compileOnly.get(),
+        configurations.testImplementation.get()
     )
 }
 ```
