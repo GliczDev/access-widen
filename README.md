@@ -5,13 +5,13 @@ project.
 
 ## Usage
 
-access-widen is available in [gradle plugin portal](https://plugins.gradle.org/plugin/io.github.gliczdev.access-widen).
+access-widen is available in [gradle plugin portal](https://plugins.gradle.org/plugin/me.glicz.access-widen).
 
 Simply add the plugin to your build file:
 
 ```kts
 plugins {
-    id("io.github.gliczdev.access-widen") version "..."
+    id("me.glicz.access-widen") version "..."
 }
 ```
 
@@ -22,15 +22,15 @@ dependencies {
     accessWiden("com.example:example:1.0")
 }
 
-accessWideners {
+accessWiden {
     files.from(/*...*/)
+    
+    // optional, default: compileOnly
+    outputConfigurations = setOf(
+        ,
+        "testImplementation"
+    )
 }
-```
-
-then, to finalize your setup run:
-
-```shell
-./gradlew applyAccessWideners
 ```
 
 ## Examples
@@ -40,17 +40,19 @@ then, to finalize your setup run:
 ```kts
 plugins {
     id("io.papermc.paperweight.userdev") version "..."
-    id("io.github.gliczdev.access-widen") version "..."
+    id("me.glicz.access-widen") version "..."
 }
 
-val paperVersion = "..."
-
 dependencies {
-    paperweight.paperDevBundle(paperVersion)
-
+    paperweight.paperDevBundle("...")
+    
     // other dependencies like ignite api or mixin
+}
 
-    accessWiden("io.papermc.paper:paper-server:userdev-$paperVersion")
+paperweight {
+    addServerDependencyTo = setOf(
+        configurations.accessWiden.get()
+    )
 }
 
 accessWideners {
@@ -58,11 +60,5 @@ accessWideners {
     files.from(fileTree(sourceSets.main.get().resources.srcDirs.first()) {
         include("*.accesswidener")
     })
-}
-
-tasks {
-    compileJava {
-        dependsOn(applyAccessWideners)
-    }
 }
 ```

@@ -45,7 +45,7 @@ tasks {
             "org.slf4j",
             "org.zeroturnaround"
         ).forEach {
-            relocate(it, "$group.accesswiden.libs.$it")
+            relocate(it, "${project.group}.accesswiden.libs.$it")
         }
     }
 }
