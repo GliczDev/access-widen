@@ -19,7 +19,7 @@ and configure it:
 
 ```kts
 dependencies {
-    accessWiden("com.example:example:1.0")
+    compileOnly(accessWiden("com.example:example:1.0"))
 }
 
 accessWiden {
@@ -43,16 +43,17 @@ plugins {
     id("me.glicz.access-widen") version "..."
 }
 
+val accessWidening by configurations.creating
+
 dependencies {
     paperweight.paperDevBundle("...")
-    
+    compileOnly(accessWiden(accessWidening))
+
     // other dependencies like ignite api or mixin
 }
 
 paperweight {
-    addServerDependencyTo = setOf(
-        configurations.accessWiden.get()
-    )
+    addServerDependencyTo = setOf(accessWidening)
 }
 
 accessWideners {
