@@ -23,13 +23,7 @@ dependencies {
 }
 
 accessWiden {
-    files.from(/*...*/)
-    
-    // optional, default: compileOnly
-    outputConfigurations = setOf(
-        configurations.compileOnly.get(),
-        configurations.testImplementation.get()
-    )
+    accessWideners.from(/*...*/)
 }
 ```
 
@@ -58,7 +52,7 @@ paperweight {
 
 accessWideners {
     // load *.accesswidener files from resources
-    files.from(fileTree(sourceSets.main.get().resources.srcDirs.first()) {
+    accessWideners.from(fileTree(sourceSets.main.get().resources.srcDirs.first()) {
         include("*.accesswidener")
     })
 }
