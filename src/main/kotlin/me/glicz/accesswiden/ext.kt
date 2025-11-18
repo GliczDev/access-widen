@@ -39,7 +39,7 @@ fun Project.accessWiden(provider: Provider<out Iterable<File>>) = files(provider
 
     val cacheDir = rootDir.resolve(CACHE_DIR)
 
-    val awChecksum = cacheDir.resolve(AW_CHECKSUM)
+    val awChecksum = cacheDir.resolve("aw.checksum")
     val awExpectedHash = awChecksum.readTextIfExists()?.toHexByteArray()
 
     if (!awModel.hash.contentEquals(awExpectedHash)) {
@@ -52,14 +52,10 @@ fun Project.accessWiden(provider: Provider<out Iterable<File>>) = files(provider
     val digest = MessageDigests.sha256()
 
     files.map { input ->
-        val outputDir = cacheDir.resolve(digest.digest(input).toHexString()).apply {
-            mkdirs()
-        }
+        val output = cacheDir.resolve("${digest.digest(input).toHexString()}.jar")
 
-        val checksum = outputDir.resolve(CHECKSUM)
+        val checksum = cacheDir.resolve("${output.name}.checksum")
         val expectedHash = checksum.readTextIfExists()?.toHexByteArray()
-
-        val output = outputDir.resolve("${input.name}")
 
         if (!output.exists() || !expectedHash.contentEquals(digest.digest(output))) {
             output.forceDelete()

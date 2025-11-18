@@ -1,5 +1,8 @@
+@file:ApiStatus.Internal
+
 package me.glicz.accesswiden.util
 
+import org.jetbrains.annotations.ApiStatus
 import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest

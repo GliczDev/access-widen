@@ -1,3 +1,5 @@
+@file:ApiStatus.Internal
+
 package me.glicz.accesswiden
 
 import me.glicz.accesswiden.util.AccessWidenerZipEntryTransformer
@@ -10,6 +12,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.getByType
+import org.jetbrains.annotations.ApiStatus
 import org.zeroturnaround.zip.transform.ZipEntryTransformerEntry
 
 private const val ACCESS_WIDEN_MODEL = "accessWidenModel"
