@@ -1,7 +1,7 @@
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish") version "1.3.0"
-    id("com.gradleup.shadow") version "8.3.5"
+    id("com.gradle.plugin-publish") version "2.0.0"
+    id("com.gradleup.shadow") version "8.3.9"
 }
 
 repositories {
