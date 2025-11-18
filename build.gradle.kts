@@ -14,6 +14,7 @@ dependencies {
     implementation("org.ow2.asm:asm:9.6")
     implementation("org.ow2.asm:asm-commons:9.6")
     implementation("org.zeroturnaround:zt-zip:1.17")
+    implementation("org.slf4j:slf4j-nop:1.6.6") // match the version zt-zip provides
 }
 
 kotlin {
