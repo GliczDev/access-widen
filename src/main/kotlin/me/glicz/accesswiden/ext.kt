@@ -1,59 +1,74 @@
-import me.glicz.accesswiden.AccessWidenExtension
-import me.glicz.accesswiden.util.AccessWidenerZipEntryTransformer
-import net.fabricmc.accesswidener.AccessWidener
-import net.fabricmc.accesswidener.AccessWidenerReader
+import me.glicz.accesswiden.accessWidenModel
+import me.glicz.accesswiden.util.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.provider.Provider
-import org.gradle.kotlin.dsl.getByType
 import org.zeroturnaround.zip.ZipUtil
-import org.zeroturnaround.zip.transform.ZipEntryTransformerEntry
 import java.io.File
 
 fun Project.accessWiden(notation: String) =
-    accessWiden(provider { configurations.detachedConfiguration(dependencies.create(notation)) })
+    accessWiden(notation as Any)
+
+fun Project.accessWiden(dependencyNotation: Any) =
+    accessWiden(provider { configurations.detachedConfiguration(dependencies.create(dependencyNotation)) })
+
+@JvmName("accessWidenConfiguration")
+fun Project.accessWiden(configuration: Configuration) =
+    accessWiden(provider { configuration })
 
 @JvmName("accessWidenConfiguration")
 fun Project.accessWiden(provider: Provider<out Configuration>) =
     accessWiden(provider.map { it.resolve() })
 
 @JvmName("accessWidenTask")
+fun Project.accessWiden(task: Task) =
+    accessWiden(provider { task })
+
+@JvmName("accessWidenTask")
 fun Project.accessWiden(provider: Provider<out Task>) =
     accessWiden(provider.map { it.outputs.files })
 
 @JvmName("accessWidenFiles")
+fun Project.accessWiden(files: Iterable<File>) =
+    accessWiden(provider { files })
+
+@JvmName("accessWidenFiles")
 fun Project.accessWiden(provider: Provider<out Iterable<File>>) = files(provider.map { files ->
-    val accessWidenExt = extensions.getByType<AccessWidenExtension>()
+    val awModel = accessWidenModel.get()
 
-    val accessWidener = AccessWidener()
-    val reader = AccessWidenerReader(accessWidener)
+    val cacheDir = rootDir.resolve(CACHE_DIR)
 
-    accessWidenExt.accessWideners.forEach { awFile ->
-        awFile.bufferedReader().use(reader::read)
+    val awChecksum = cacheDir.resolve(AW_CHECKSUM)
+    val awExpectedHash = awChecksum.readTextIfExists()?.toHexByteArray()
+
+    if (!awModel.hash.contentEquals(awExpectedHash)) {
+        cacheDir.walkBottomUp().forEach(File::forceDelete)
+        cacheDir.mkdirs()
+
+        awChecksum.writeText(awModel.hash.toHexString())
     }
 
-    val transformer = AccessWidenerZipEntryTransformer(accessWidener)
+    val digest = MessageDigests.sha256()
 
-    val entries = accessWidener.targets
-        .map { target ->
-            val entryPath = target.replace(".", "/") + ".class"
-
-            ZipEntryTransformerEntry(entryPath, transformer)
-        }
-        .toTypedArray()
-
-    layout.buildDirectory.asFile.map { buildDir ->
-        val tempDir = buildDir.resolve("tmp/accessWiden").apply {
+    files.map { input ->
+        val outputDir = cacheDir.resolve(digest.digest(input).toHexString()).apply {
             mkdirs()
         }
 
-        files.map { input ->
-            val output = tempDir.resolve("${input.name}")
+        val checksum = outputDir.resolve(CHECKSUM)
+        val expectedHash = checksum.readTextIfExists()?.toHexByteArray()
 
-            ZipUtil.transformEntries(input, entries, output)
+        val output = outputDir.resolve("${input.name}")
 
-            output
+        if (!output.exists() || !expectedHash.contentEquals(digest.digest(output))) {
+            output.forceDelete()
+
+            ZipUtil.transformEntries(input, awModel.transformerEntries.toTypedArray(), output)
+
+            checksum.writeText(digest.digest(output).toHexString())
         }
+
+        output
     }
 })
