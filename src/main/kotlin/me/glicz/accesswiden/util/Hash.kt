@@ -1,11 +1,15 @@
-@file:ApiStatus.Internal
-
 package me.glicz.accesswiden.util
 
-import org.jetbrains.annotations.ApiStatus
+internal class Hash(private val bytes: ByteArray) {
+    constructor(hash: String) : this(
+        hash.chunked(2) { it.toString().toInt(16).toByte() }.toByteArray()
+    )
 
-class Hash(private val bytes: ByteArray) {
-    fun toHexString() = bytes.toHexString()
+    override fun hashCode() = bytes.contentHashCode()
 
-    fun contentEquals(other: ByteArray?) = bytes.contentEquals(other)
+    override fun equals(other: Any?) =
+        this === other || other is Hash && bytes.contentEquals(other.bytes)
+
+    override fun toString() =
+        bytes.joinToString("") { "%02x".format(it) }
 }

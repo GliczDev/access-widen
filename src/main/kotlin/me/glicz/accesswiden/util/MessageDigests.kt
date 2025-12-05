@@ -1,17 +1,14 @@
-@file:ApiStatus.Internal
-
 package me.glicz.accesswiden.util
 
-import org.jetbrains.annotations.ApiStatus
 import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
 
-object MessageDigests {
+internal object MessageDigests {
     fun sha256() = MessageDigest.getInstance("SHA-256")!!
 }
 
-fun MessageDigest.update(inputStream: InputStream) {
+internal fun MessageDigest.update(inputStream: InputStream) {
     val buffer = ByteArray(8 * 1024 * 1024) // 8 MB
 
     var read: Int
@@ -20,4 +17,4 @@ fun MessageDigest.update(inputStream: InputStream) {
     }
 }
 
-fun MessageDigest.digest(file: File) = digest(file.readBytes())!!
+internal fun MessageDigest.digest(file: File) = digest(file.readBytes())!!

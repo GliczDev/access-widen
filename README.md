@@ -50,7 +50,7 @@ paperweight {
     addServerDependencyTo = setOf(accessWidening)
 }
 
-accessWideners {
+accessWiden {
     // load *.accesswidener files from resources
     accessWideners.from(fileTree(sourceSets.main.get().resources.srcDirs.first()) {
         include("*.accesswidener")

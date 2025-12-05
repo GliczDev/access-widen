@@ -1,36 +1,24 @@
-@file:ApiStatus.Internal
+package me.glicz.accesswiden.util
 
-package me.glicz.accesswiden
-
-import me.glicz.accesswiden.util.AccessWidenerZipEntryTransformer
-import me.glicz.accesswiden.util.Hash
-import me.glicz.accesswiden.util.MessageDigests
-import me.glicz.accesswiden.util.update
+import me.glicz.accesswiden.AccessWidenExtension
 import net.fabricmc.accesswidener.AccessWidener
 import net.fabricmc.accesswidener.AccessWidenerReader
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.gradle.internal.extensions.core.extra
-import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.annotations.ApiStatus
+import org.gradle.kotlin.dsl.the
 import org.zeroturnaround.zip.transform.ZipEntryTransformerEntry
 
 private const val ACCESS_WIDEN_MODEL = "accessWidenModel"
 
-data class AccessWidenModel(
+internal data class AccessWidenModel(
     val hash: Hash,
     val transformerEntries: Collection<ZipEntryTransformerEntry>
 )
 
-val Project.accessWidenModel: Provider<AccessWidenModel>
-    get() {
-        if (extra.has(ACCESS_WIDEN_MODEL)) {
-            @Suppress("UNCHECKED_CAST")
-            return extra[ACCESS_WIDEN_MODEL] as Provider<AccessWidenModel>
-        }
-
-        val provider = provider {
-            val awExt = extensions.getByType<AccessWidenExtension>()
+internal val Project.accessWidenModel
+    get() = extra.getOrSet(ACCESS_WIDEN_MODEL) {
+        provider {
+            val awExt = the<AccessWidenExtension>()
 
             val aw = AccessWidener()
             val awReader = AccessWidenerReader(aw)
@@ -47,13 +35,11 @@ val Project.accessWidenModel: Provider<AccessWidenModel>
             val transformer = AccessWidenerZipEntryTransformer(aw)
 
             val entries = aw.targets.map { target ->
-                val entryPath = target.replace(".", "/") + ".class"
+                val entryPath = target.replace('.', '/') + ".class"
 
                 ZipEntryTransformerEntry(entryPath, transformer)
             }
 
             AccessWidenModel(hash, entries)
         }
-
-        return provider.also { extra[ACCESS_WIDEN_MODEL] = it }
     }

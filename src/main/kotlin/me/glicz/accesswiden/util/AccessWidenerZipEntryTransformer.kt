@@ -1,17 +1,14 @@
-@file:ApiStatus.Internal
-
 package me.glicz.accesswiden.util
 
 import net.fabricmc.accesswidener.AccessWidener
 import net.fabricmc.accesswidener.AccessWidenerClassVisitor
-import org.jetbrains.annotations.ApiStatus
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
 import org.zeroturnaround.zip.transform.ByteArrayZipEntryTransformer
 import java.util.zip.ZipEntry
 
-class AccessWidenerZipEntryTransformer(
+internal class AccessWidenerZipEntryTransformer(
     private val accessWidener: AccessWidener
 ) : ByteArrayZipEntryTransformer() {
     override fun transform(zipEntry: ZipEntry, input: ByteArray): ByteArray {
